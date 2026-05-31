@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Liminal Page</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,200;0,300;0,400;1,200;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body { background: #0c0b0f; }
+
+    .site {
+      background: #0c0b0f;
+      color: #c8c0b4;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      position: relative;
+      opacity: 0;
+      animation: materialize 2.4s ease forwards;
+      min-height: 100vh;
+    }
+
+    @keyframes materialize {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .margin-line {
+      position: fixed;
+      left: 28px;
+      top: 0;
+      bottom: 0;
+      width: 0.5px;
+      background: #2a2530;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .texture-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.06'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 200px 200px;
+      mix-blend-mode: overlay;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.8rem 3rem;
+      border-bottom: 0.5px solid #2a2530;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-size: 9px;
+      font-weight: 300;
+    }
+
+    .nav-logo {
+      color: #e8e0d4;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    .nav-links { display: flex; gap: 2.5rem; }
+
+    .nav-link {
+      color: #4a4850;
+      cursor: pointer;
+      transition: color 0.3s;
+      letter-spacing: 0.18em;
+    }
+
+    .nav-link:hover, .nav-link.active { color: #c8c0b4; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .archive-hero {
+      text-align: center;
+      padding: 5rem 3rem 3rem;
+      border-bottom: 0.5px solid #1e1c22;
+    }
+
+    .archive-hero p {
+      font-size: 9px;
+      font-weight: 300;
+      color: #4a4850;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    .archive-grid {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5px;
+      background: #1a1820;
+    }
+
+    .entry-card {
+      background: #0c0b0f;
+      padding: 2.5rem;
+      cursor: pointer;
+      transition: background 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .entry-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.04'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 120px 120px;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .entry-card:hover { background: #110f14; }
+
+    .entry-card.featured {
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      padding: 3.5rem;
+    }
+
+    .entry-card.featured .entry-title { font-size: 26px; }
+
+    .entry-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .entry-number {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      color: #2e2c33;
+      font-weight: 300;
+    }
+
+    .entry-type {
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 400;
+      color: #3d3842;
+    }
+
+    .entry-type.poem { color: #6b5f7a; }
+    .entry-type.photo { color: #4e6670; }
+    .entry-type.video { color: #5a6050; }
+
+    .entry-title {
+      font-size: 18px;
+      font-weight: 200;
+      color: #d8d0c4;
+      margin-bottom: 1rem;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+
+    .entry-divider {
+      width: 16px;
+      height: 0.5px;
+      background: #2a2530;
+      margin: 1.2rem 0;
+    }
+
+    .entry-excerpt {
+      font-size: 12px;
+      font-weight: 300;
+      color: #4a4850;
+      line-height: 1.8;
+      font-style: italic;
+    }
+
+    .featured-visual {
+      background: #110f14;
+      border: 0.5px solid #1e1c22;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .featured-visual::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='4' seed='8' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.07'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 160px 160px;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .visual-placeholder { text-align: center; position: relative; z-index: 1; }
+
+    .visual-glyph {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #2a2530;
+      display: block;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.1em;
+    }
+
+    .visual-label {
+      font-size: 8px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #2a2530;
+    }
+
+    .invitation-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      position: relative;
+    }
+
+    .invitation-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 180px 180px;
+      mix-blend-mode: overlay;
+      pointer-events: none;
+    }
+
+    .invitation-inner {
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      padding: 2.5rem 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .invitation-eyebrow {
+      font-size: 8px;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: #3d3842;
+      font-weight: 400;
+      margin-bottom: 2rem;
+    }
+
+    .invitation-title {
+      font-size: 40px;
+      font-weight: 200;
+      color: #e8e0d4;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .invitation-title em { font-style: italic; font-weight: 200; }
+
+    .invitation-rule {
+      width: 32px;
+      height: 0.5px;
+      background: #2a2530;
+      margin: 0 auto 1.8rem;
+    }
+
+    .invitation-subtitle {
+      font-size: 13px;
+      font-weight: 300;
+      color: #7a7680;
+      line-height: 1.9;
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.01em;
+    }
+
+    .form-field { margin-bottom: 1rem; }
+
+    .form-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 0.5px solid #3a3840;
+      color: #e8e0d4;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      padding: 0.8rem 0;
+      outline: none;
+      transition: border-color 0.3s;
+      text-align: center;
+      letter-spacing: 0.08em;
+    }
+
+    .form-input::placeholder {
+      color: #4a4850;
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+    }
+
+    .form-input:focus { border-bottom-color: #6b5f7a; }
+
+    .form-btn {
+      margin-top: 2rem;
+      width: 100%;
+      background: transparent;
+      border: 0.5px solid #2a2530;
+      color: #4a4850;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 8px;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      font-weight: 400;
+      padding: 1rem 2rem;
+      cursor: pointer;
+      transition: all 0.4s;
+    }
+
+    .form-btn:hover { border-color: #6b5f7a; color: #c8c0b4; }
+
+    .form-success {
+      display: none;
+      font-size: 12px;
+      font-weight: 300;
+      color: #6b5f7a;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-top: 2rem;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .invitation-note {
+      margin-top: 1.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: #2a2530;
+      letter-spacing: 0.08em;
+    }
+
+    .site-footer {
+      padding: 2rem 3rem;
+      border-top: 0.5px solid #1a1820;
+      text-align: center;
+      font-size: 8px;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      color: #2a2530;
+      text-transform: uppercase;
+      position: relative;
+    }
+
+    .site-footer::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='12' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23g)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 100px 100px;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    @media (max-width: 640px) {
+      .nav { padding: 1.5rem; }
+      .archive-grid { padding: 1.5rem; grid-template-columns: 1fr; }
+      .entry-card.featured { grid-column: span 1; grid-template-columns: 1fr; }
+      .featured-visual { min-height: 140px; }
+      .invitation-wrap { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="margin-line"></div>
+<div class="texture-overlay"></div>
+
+<div class="site">
+  <nav class="nav">
+    <span class="nav-logo" onclick="showPage('archive')">the liminal page</span>
+    <div class="nav-links">
+      <span class="nav-link active" id="nav-archive" onclick="showPage('archive')">Archive</span>
+      <span class="nav-link" id="nav-invitation" onclick="showPage('invitation')">Invitation</span>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+    ARCHIVE PAGE
+    To add a new entry: copy one of the entry-card blocks below,
+    paste it above the others, and update the number, type, title,
+    and excerpt. Change the type class to: poem / photo / video
+  ============================================================= -->
+  <div class="page active" id="page-archive">
+    <div class="archive-hero">
+      <p>Found in the world &nbsp;·&nbsp; Left for you</p>
+    </div>
+
+    <div class="archive-grid">
+
+      <!-- FEATURED ENTRY (always the first / most recent) -->
+      <div class="entry-card featured">
+        <div>
+          <div class="entry-meta">
+            <span class="entry-number">001</span>
+            <span class="entry-type poem">Poem</span>
+          </div>
+          <div class="entry-title">Between the breath and its unbecoming</div>
+          <div class="entry-divider"></div>
+          <div class="entry-excerpt">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+        </div>
+        <div class="featured-visual">
+          <div class="visual-placeholder">
+            <span class="visual-glyph">[ img ]</span>
+            <span class="visual-label">Image forthcoming</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENTRY 002 -->
+      <div class="entry-card">
+        <div class="entry-meta">
+          <span class="entry-number">002</span>
+          <span class="entry-type photo">Photography</span>
+        </div>
+        <div class="entry-title">What the window holds at 4am</div>
+        <div class="entry-divider"></div>
+        <div class="entry-excerpt">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</div>
+      </div>
+
+      <!-- ENTRY 003 -->
+      <div class="entry-card">
+        <div class="entry-meta">
+          <span class="entry-number">003</span>
+          <span class="entry-type poem">Poem</span>
+        </div>
+        <div class="entry-title">The address of your quiet</div>
+        <div class="entry-divider"></div>
+        <div class="entry-excerpt">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+      </div>
+
+      <!-- ENTRY 004 -->
+      <div class="entry-card">
+        <div class="entry-meta">
+          <span class="entry-number">004</span>
+          <span class="entry-type video">Video</span>
+        </div>
+        <div class="entry-title">A door that was never a door</div>
+        <div class="entry-divider"></div>
+        <div class="entry-excerpt">Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.</div>
+      </div>
+
+      <!-- ENTRY 005 -->
+      <div class="entry-card">
+        <div class="entry-meta">
+          <span class="entry-number">005</span>
+          <span class="entry-type poem">Poem</span>
+        </div>
+        <div class="entry-title">You were always already here</div>
+        <div class="entry-divider"></div>
+        <div class="entry-excerpt">Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur.</div>
+      </div>
+
+      <!-- ENTRY 006 -->
+      <div class="entry-card">
+        <div class="entry-meta">
+          <span class="entry-number">006</span>
+          <span class="entry-type photo">Photography</span>
+        </div>
+        <div class="entry-title">Instructions for standing still</div>
+        <div class="entry-divider"></div>
+        <div class="entry-excerpt">Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime.</div>
+      </div>
+
+      <!-- ADD NEW ENTRIES ABOVE THIS LINE -->
+
+    </div>
+  </div>
+
+  <!-- ============================================================
+    INVITATION PAGE — no edits needed here
+  ============================================================= -->
+  <div class="page" id="page-invitation">
+    <div class="invitation-wrap">
+      <div class="invitation-inner">
+        <div class="invitation-eyebrow">An invitation</div>
+        <div class="invitation-title">You were meant<br><em>to find this</em></div>
+        <div class="invitation-rule"></div>
+        <div class="invitation-subtitle">
+          Somewhere between the past and the future. Between the old and the new. Lingering at the edge of reality, is The Liminal Page.
+        </div>
+        <form name="invitation" method="POST" data-netlify="true" id="invite-form">
+          <input type="hidden" name="form-name" value="invitation" />
+          <div class="form-field">
+            <input class="form-input" type="text" name="name" placeholder="your name" required />
+          </div>
+          <div class="form-field">
+            <input class="form-input" type="email" name="email" placeholder="your email address" required />
+          </div>
+          <button class="form-btn" type="submit">I accept</button>
+        </form>
+        <div class="form-success" id="form-success">we will find you</div>
+        <div class="invitation-note">No frequency. No schedule. Everything in divine time.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    the liminal page &nbsp;·&nbsp; found in the world
+  </footer>
+</div>
+
+<script>
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    const site = document.querySelector('.site');
+    site.style.animation = 'none';
+    void site.offsetWidth;
+    site.style.animation = 'materialize 1.2s ease forwards';
+  }
+
+  const form = document.getElementById('invite-form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      await fetch('/', { method: 'POST', body: data });
+      form.style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    });
+  }
+</script>
+
+</body>
+</html>
